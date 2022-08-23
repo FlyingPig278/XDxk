@@ -7,13 +7,12 @@ import os
 from encrypt import AES_encrypt
 
 
-def ocr_captcha():
+def ocr_captcha(img):
     """
     :return: 识别到的验证码
     """
-    ocr=ddddocr.DdddOcr()
-    with open('验证码.jpg','rb') as f:
-        code_bytes=f.read()
+    ocr = ddddocr.DdddOcr()
+    code_bytes = img
     return ocr.classification(code_bytes)
 
 
@@ -23,33 +22,27 @@ def get_captcha(conf):
     :return: code & uuid
     """
     url = "https://xk.xidian.edu.cn/xsxk/auth/captcha"
-    p = requests.post(url)
-    with open("captcha_pac.json", "wb") as f:
-        f.write(p.content)      # 保存为json文件
-    with open("captcha_pac.json", 'r') as f:
-        result = json.load(f)   # 获得返回的json
-    print(result['code'])   #打印返回值,成功是200
+    result = requests.post(url)
+    p = result.json()
+    if conf['debug'] == '1':
+        with open("captcha_pac.json", "wb") as f:
+            f.write(result.content)      # 字节形式写入，保存为json文件
 
-    # print("uuid:", result['data']['uuid'])
+    print(p['msg'])   # 打印状态
 
-    pic = result['data']['captcha'].replace("data:image/png;base64,", "")  # 保存验证码为图片
-    b = base64.b64decode(pic)
-    with open('验证码.jpg', 'wb') as f:
-        f.write(b)
+    pic = p['data']['captcha'].replace("data:image/png;base64,", "")
+    b = base64.b64decode(pic)       # 用于ddddocr识别
 
-    if conf["ocr_captcha"] == "1":      # 默认， 自动识别验证码
-        code = ocr_captcha()
+    if conf["ocr_captcha"] == "1":      # 默认，自动识别验证码
+        code = ocr_captcha(b)
         print("验证码为:", code)
-    else:                               #手动输入
-        img = plt.imread('验证码.jpg')
+    else:                               # 手动输入
+        img = plt.imread(p['data']['captcha'])
         plt.imshow(img)
         plt.show()                      # 显示验证码
         code = input("请输入验证码:")
 
-    # print("captcha:", result['data']['captcha'])
-    # print("uuid:", result['data']['uuid'])
-
-    return code, result['data']['uuid']
+    return code, p['data']['uuid']
 
 
 def login(conf):
@@ -70,17 +63,12 @@ def login(conf):
     form["password"] = AES_encrypt(form["password"])
     form["captcha"], form["uuid"] = get_captcha(conf)   # 构造表单
 
-    p = requests.post(url, header, params=form)
-    with open("login_pac.json", "wb") as f:
-        f.write(p.content)      # 字节形式写入，保存为json文件
-    # print(p.text)
+    result = requests.post(url, header, params=form)
+    if conf['debug'] == '1':
+        with open("login_pac.json", "wb") as f:
+            f.write(result.content)      # 字节形式写入，保存为json文件
 
-    with open("login_pac.json", 'r', encoding="utf-8") as f:
-        result = json.load(f)   # 加载返回的json
-
-    os.remove("login_pac.json")     # 加载完成后删除，保护隐私
-
-    return result
+    return result.json()
 
 
 def show_msg(json):
@@ -101,3 +89,4 @@ def show_msg(json):
 
 if __name__ == '__main__':
     pass
+    # 去运行 xk_main.py

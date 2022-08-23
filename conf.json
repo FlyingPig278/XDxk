@@ -1,7 +1,8 @@
 {
   "ocr_captcha": "1",
+  "debug": "0",
   "data": {
-    "loginname": "",
+    "loginname": "20009100501",
     "password": "",
     "captcha": "xxxx",
     "uuid": "xxxx"
