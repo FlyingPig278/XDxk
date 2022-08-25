@@ -87,16 +87,19 @@ def show_msg(json):
         lst = json["data"]["student"]["electiveBatchList"]
         for i in lst:
             print("选课批次：", i["name"], "\t是否可选：", i["canSelect"])
-            if i["canSelect"] == "1":
+            if i["canSelect"] == "1" and "2020级" in i["name"]:
                 batch_code = i["code"]
     except TypeError:
         print(json["msg"])
         batch_code = ''
+    print(batch_code)
+    print(json["data"]["token"])
     return batch_code
 
 
-def choose_Batch(j):
+def choose_Batch(j, batch):
     """
+    :param batch:
     :param j: login.json
     :return:
     不需要
@@ -109,9 +112,8 @@ def choose_Batch(j):
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/103.0.5060.66 Safari/537.36 Edg/103.0.1264.44",
     }
     form = {
-        "batchId": "7397c723d6cb457dbfc12e2efb076787"
+        "batchId": batch
     }
-    # 这是2020级的批次
 
     h = requests.post(url, params=form, headers=header)
     with open("batch_pac.json", "wb") as f:
@@ -127,17 +129,17 @@ def get_class(j, conf, batch, category=0):
         "Content-Type": "application/json;charset=UTF-8",
         "batchId": batch,
         "Authorization": j["data"]["token"],
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) "
-                      "Chrome/103.0.5060.66 Safari/537.36 Edg/103.0.1264.44",
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/103.0.5060.66 Safari/537.36 Edg/103.0.1264.44",
     }
     cat = ["TJKC", "XGKC"]
     form = {
             "teachingClassType": cat[category],
             "pageNumber": 1,
-            "pageSize": 300,
+            "pageSize": 30,
             "orderBy": "",
             "campus": "S"
     }
+    cookie = {"Authorization": j["data"]["token"]}
     a = requests.post(url, json=form, headers=header)
 
     if conf['debug'] == '1':
@@ -170,8 +172,8 @@ def add(j, class_dict, cookie, batch, always=1, category=0):
     if category == 0:        # 必修
         form = {
             "clazzType": "TJKC",
-            "clazzId": class_dict["tcList"][0]["JXBID"],
-            "secretVal": class_dict["tcList"][0]["secretVal"],
+            "clazzId": class_dict["JXBID"],
+            "secretVal": class_dict["secretVal"],
             "chooseVolunteer": "1"
         }
     elif category == 1:      # 选修
@@ -197,6 +199,7 @@ def add(j, class_dict, cookie, batch, always=1, category=0):
         r = requests.post(url, params=form, headers=header, cookies=cookie)
         # print(r.text)
         print(class_dict["KCH"], class_dict["KCM"], end='\t')
+        print(class_dict["SKJS"], end='\t')
         print("选课", end='\t')
         msg = r.json()["msg"]
         print(msg)
@@ -225,8 +228,8 @@ def dele(j, class_dict, cookie, batch, always=1, category=0):
     if category == 0:        # 必修
         form = {
             "clazzType": "TJKC",
-            "clazzId": class_dict["tcList"][0]["JXBID"],
-            "secretVal": class_dict["tcList"][0]["secretVal"]
+            "clazzId": class_dict["JXBID"],
+            "secretVal": class_dict["secretVal"]
         }
     elif category == 1:      # 选修
         form = {
@@ -251,6 +254,7 @@ def dele(j, class_dict, cookie, batch, always=1, category=0):
         r = requests.post(url, params=form, headers=header, cookies=cookie)
         # print(r.text)
         print(class_dict["KCH"], class_dict["KCM"], end='\t')
+        print(class_dict["SKJS"], end='\t')
         print("退课", end='\t')
         msg = r.json()["msg"]
         print(msg)

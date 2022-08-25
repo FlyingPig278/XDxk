@@ -19,8 +19,17 @@ pip install -i https://pypi.tuna.tsinghua.edu.cn/simple -r requirements.txt
   "ocr_captcha": "1",               是否使用自动识别验证码
   "debug": "0",                     是否输出调试文件
   "bx_or_xx": "0",                  0是必修，1是选修
-  "KCH": ["TE204004", "TE204001"],  课程号
-  "KCM": ["习近平新时代中国特色社会主义思想概论"],    课程名
+  "bx": [                           必修的格式
+    {
+      "KCH": "TE204003",            课程号
+      "KXH": "02"                   课序号(小卡片左上角：[01])(必填)
+    }
+  ],
+  "xx": [                           选修的格式
+    {
+      "KCH": "FL006066"             课程号
+    }
+  ],
   "data": {
     "loginname": "username",        学号
     "password": "password",         密码
@@ -43,7 +52,7 @@ pip install -i https://pypi.tuna.tsinghua.edu.cn/simple -r requirements.txt
 
 ---
 
-# _How To Run _ 2_
+# _How To Run _ 2 (unfinish)_
 为了提供一种更加灵活的选课方法，在xk_main.py中提供了
 `add_1(bx_or_xx, KCM=[""], KCH=[""], always=1)`
 函数，优先级高于conf.json

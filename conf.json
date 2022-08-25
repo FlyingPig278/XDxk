@@ -1,9 +1,18 @@
 {
   "ocr_captcha": "1",
-  "debug": "1",
+  "debug": "0",
   "bx_or_xx": 0,
-  "KCH": ["TE204006"],
-  "KCM": [""],
+  "bx": [
+    {
+      "KCH": "TE204003",
+      "KXH": "02"
+    }
+  ],
+  "xx": [
+    {
+      "KCH": "FL006066"
+    }
+  ],
   "data": {
     "loginname": "20009100501",
     "password": "",
