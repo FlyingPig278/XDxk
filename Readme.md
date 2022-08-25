@@ -66,6 +66,8 @@ if __name__ == '__main__':
     # main()
     print("Done")
 ```
+del_1函数同add_1
+
 ---
 # Attention
  - 如果conf.json中没填学号密码，运行时可以手动输入
