@@ -127,7 +127,8 @@ def get_class(j, conf, batch, category=0):
         "Content-Type": "application/json;charset=UTF-8",
         "batchId": batch,
         "Authorization": j["data"]["token"],
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/103.0.5060.66 Safari/537.36 Edg/103.0.1264.44",
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) "
+                      "Chrome/103.0.5060.66 Safari/537.36 Edg/103.0.1264.44",
     }
     cat = ["TJKC", "XGKC"]
     form = {
@@ -146,7 +147,7 @@ def get_class(j, conf, batch, category=0):
     return a.json()
 
 
-def add(j, class_dict, cookie, batch, category=0):
+def add(j, class_dict, cookie, batch, always=1, category=0):
 
     header = {
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/103.0.5060.66 Safari/537.36 Edg/103.0.1264.44",
@@ -166,14 +167,14 @@ def add(j, class_dict, cookie, batch, category=0):
 
     url = 'https://xk.xidian.edu.cn/xsxk/elective/clazz/add'
 
-    if category == 0:
+    if category == 0:        # 必修
         form = {
             "clazzType": "TJKC",
             "clazzId": class_dict["tcList"][0]["JXBID"],
             "secretVal": class_dict["tcList"][0]["secretVal"],
             "chooseVolunteer": "1"
         }
-    elif category == 1:
+    elif category == 1:      # 选修
         form = {
             "clazzType": "XGKC",
             "clazzId": class_dict["JXBID"],
@@ -183,8 +184,15 @@ def add(j, class_dict, cookie, batch, category=0):
 
     cookie["Authorization"] = j["data"]["token"]
 
-    msg = ''
-    while msg not in ['该课程已在选课结果中', '所选课程与已选课程冲突']:
+    if always == 1:
+        msg = ''
+        while msg not in ['该课程已在选课结果中', '所选课程与已选课程冲突']:
+            r = requests.post(url, params=form, headers=header, cookies=cookie)
+            # print(r.text)
+            print(class_dict["KCH"], class_dict["KCM"], end='\t')
+            msg = r.json()["msg"]
+            print(msg)
+    else:
         r = requests.post(url, params=form, headers=header, cookies=cookie)
         # print(r.text)
         print(class_dict["KCH"], class_dict["KCM"], end='\t')

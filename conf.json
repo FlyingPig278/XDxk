@@ -1,13 +1,12 @@
 {
   "ocr_captcha": "1",
-  "debug": "0",
-  "always": "0",
+  "debug": "1",
   "bx_or_xx": 0,
-  "KCH": [""],
-  "KCM": ["通信原理"],
+  "KCH": ["TE204004"],
+  "KCM": [""],
   "data": {
     "loginname": "20009100501",
-    "password": "",
+    "password": "Zyx/0235",
     "captcha": "xxxx",
     "uuid": "xxxx"
   }
