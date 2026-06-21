@@ -1,104 +1,81 @@
-# _How To Install_
+# XDXK
 
-下载或者克隆项目到本地
+建议第一次使用时先运行“只读兼容性检测”。
 
-进入文件夹目录
+## 安装
 
-执行:
+在项目目录执行：
+
 ```commandline
 pip install -i https://pypi.tuna.tsinghua.edu.cn/simple -r requirements.txt
 ```
----
 
-# _How To Use_
+## 启动
 
+运行 `xk_main.py`，程序会显示菜单：
 
-打开**conf.json**
+```text
+1. 正常选课
+2. 只读兼容性检测（推荐先运行）
+3. 编辑配置
+4. 退课
+0. 退出
 ```
-{
-  "ocr_captcha": "1",               是否使用自动识别验证码
-  "debug": "0",                     是否输出调试文件
-  "bx_or_xx": "0",                  0是必修，1是选修
-  "bx": [                           必修课程
-    {
-      "KCH": "TE204003",            课程号
-      "KXH": "02"                   课序号(小卡片左上角：[01])(必填)
-    }
-  ],
-  "xx": [                           选修课程
-    {
-      "KCH": "FL006066"             课程号
-    }
-  ],
-  "data": {
-    "loginname": "username",        学号
-    "password": "password",         密码
-    "captcha": "xxxx",
-    "uuid": "xxxx"
-  }
-}
+
+不需要添加命令行参数。
+
+### 推荐使用顺序
+
+1. 进入“编辑配置”，填写学号、密码和课程。
+2. 运行“只读兼容性检测”。
+3. 确认登录、批次和课程字段检测通过后，再选择“正常选课”或“退课”。
+
+只读检测仅请求以下内容：
+
+- 验证码；
+- 登录；
+- 学生信息与选课批次；
+- 必修课和选修课列表。
+
+检测过程不会调用选课接口 `/elective/clazz/add` 或退课接口 `/elective/clazz/del`。
+
+## 配置
+
+全部配置统一保存在被 Git 忽略的 `.env`。可以通过启动菜单编辑，也可以复制 `.env.example` 为 `.env` 后直接修改：
+
+```dotenv
+XK_LOGINNAME="学号"
+XK_PASSWORD="密码"
+XK_OCR_CAPTCHA="1"
+XK_DEBUG="0"
+XK_BATCH_KEYWORD="2026级"
+XK_CAMPUS="S"
+XK_REQUEST_TIMEOUT=12
+XK_REQUEST_INTERVAL=1
+XK_MAX_ATTEMPTS=0
+XK_CATEGORY=0
+XK_REQUIRED_COURSES="TE204004:06,TE204004:07"
+XK_ELECTIVE_COURSES="FL006066,FL006121"
 ```
-将 **学号（username）密码（password）** 填入，然后保存
 
----
-# _How To Run_
-1、在conf.json中相应位置填入**课程号**或**课程名**，**可以填多个**
+主要配置含义：
 
-2、修改"bx_or_xx"的参数，0表示必修，1表示选修
+- `XK_OCR_CAPTCHA`：`1` 自动识别验证码，`0` 显示图片后手动输入；
+- `XK_DEBUG`：`1` 保存接口原始响应，`0` 不保存；
+- `XK_BATCH_KEYWORD`：可编辑的批次名称关键词，例如 `2026级`；留空则自动选择第一个当前可选批次；
+- `XK_CAMPUS`：课程列表接口使用的校区代码；
+- `XK_REQUEST_TIMEOUT`：单次网络请求超时秒数；
+- `XK_REQUEST_INTERVAL`：连续选课/退课请求的间隔秒数；
+- `XK_MAX_ATTEMPTS`：每门课最大尝试次数；`0` 表示不限制；
+- `XK_CATEGORY`：`0` 必修，`1` 选修；
+- `XK_REQUIRED_COURSES`：必修课，格式为 `课程号:课序号`；
+- `XK_ELECTIVE_COURSES`：选修课，只填写课程号。
 
-**！单次只能选择一种类别（必修/选修）**
+在菜单编辑器中，直接回车表示保留原值，输入 `-` 表示清空该项。多门课程使用逗号分隔，例如：
 
-用任意IDE运行xk_main.py，或者拖动到cmd里面执行
+## 容错行为
 
----
-
-# _How To Run _ 2_
-为了提供一种更加灵活的选课方法，在xk_main.py中提供了
-`add_1(bx_or_xx, kc=[{}], always=1)`
-函数，优先级高于conf.json
-```
-参数:
- - bx_or_xx: 必修_or_选修 : 0_or_1
- - kc      : 课程
- 如：
- clazz = [
-        {
-            "KCH": "TE204003"， 
-            "KXH": "02"
-        },
-        {
-            "KCH": "FL006121"，
-            "KXH": ""
-        },
-    ]
- - always  : 是否连续选课
-   - 为1表示，按照顺序，选课成功后才会进行下一门课
-   - 为0表示，仅执行一次选课操作
-   ```
-若要使用add_1函数,将xk_main.py下面代码中main()注释掉，使用原注释部分
-```commandline
-if __name__ == '__main__':
-    print('{:-^30}'.format(""))
-    print('{: ^30}'.format("Welcome"))
-    print('{:-^30}'.format(""))
-    main()
-    # clazz = [
-    #     {
-    #         "KCH": "FL006121"，
-    #         "KXH": ""
-    #     }
-    # ]
-    # del_1(1, kc=clazz, always=1)
-    # add_1(1, kc=clazz, always=1)
-    print("Done")
-```
-del_1函数同add_1
-
----
-# Attention
- - 如果conf.json中没填学号密码，运行时可以手动输入
- - 如果运行时提示**验证码错误**，可以**重新运行**，或者**改为手动识别验证码(不建议)**
- - 手动输入验证码需要将图片关闭后，再输入
- - 通过对add_1/del_1函数的组合，可以同时实现必修和选修/选课和退课
- - 默认进入2020级所在的批次，如果要修改批次，可以修改func.py第90行中的"2020"
- - 必修课必填课序号，选修课可以不填课序号
+- 网络超时、非 JSON 响应、字段缺失和登录失败会显示原因并返回主菜单；
+- 连续选课或退课发生 5 次网络/协议错误后，会停止当前课程操作；
+- 按 `Ctrl+C` 会取消当前操作并返回菜单，而不是退出整个程序；
+- 缺少可选依赖时会给出安装提示，不会在打开程序时直接闪退。

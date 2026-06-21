@@ -1,0 +1,20 @@
+__pycache__/
+*.py[cod]
+
+# 本地账号、密码。程序会把凭据写入 .env，而不是 conf.json。
+.env
+.env.*
+!.env.example
+
+# IDE 与本地系统文件
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
+
+# 接口调试响应，可能包含 token、学生信息或课程数据
+captcha_pac.json
+login_pac.json
+classlist_required.json
+classlist_elective.json
+batch_pac.json
